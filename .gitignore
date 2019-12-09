@@ -1,3 +1,13 @@
+*.classpath
+*.project
+*.log
+*.orig
+
+.settings/
+target/
+logs/
+bin/
+
 # Compiled class file
 *.class
 
