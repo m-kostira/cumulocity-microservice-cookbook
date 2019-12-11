@@ -29,4 +29,10 @@ public class CustomDevice {
 	public void setModel(String model) {
 		this.model = model;
 	}
+
+	@Override
+	public String toString() {
+		return "CustomDevice [manufacturer=" + manufacturer + ", model=" + model + "]";
+	}	
+	
 }

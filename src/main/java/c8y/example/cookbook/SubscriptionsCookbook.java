@@ -61,7 +61,7 @@ public class SubscriptionsCookbook {
 		try {
 			runBusinessLogicOutOfContext();			
 		} catch (Exception e) {
-			log.error("Error", e); // results in "java.lang.IllegalStateException: Not within any context!"
+			log.error("Error, not in any tenant scope"); // results in "java.lang.IllegalStateException: Not within any context!"
 		}
 	}
 
