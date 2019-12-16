@@ -136,7 +136,7 @@ public class InventoryCookbook {
 						tenant,
 						new ObjectMapper().writeValueAsString(managedObjectRepresentation)));
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				log.error("Error writing JSON string", e);
 			}
 	    }
 	}
@@ -153,7 +153,7 @@ public class InventoryCookbook {
 						tenant,							
 						new ObjectMapper().writeValueAsString(managedObjectRepresentation)));
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				log.error("Error writing JSON string", e);
 			}
 	    }				
 	}

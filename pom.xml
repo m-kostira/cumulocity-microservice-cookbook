@@ -44,8 +44,8 @@
 	<build>
 
 		<resources>
-			<!-- specify which resources should be filtered by Maven to replace ${varName} vars, 
-			see https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html -->
+			<!-- specify which resources should be filtered by Maven to replace ${varName} 
+				vars, see https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html -->
 			<resource>
 				<directory>${basedir}/src/main/resources</directory>
 				<filtering>true</filtering>
@@ -56,8 +56,9 @@
 			</resource>
 			<resource>
 				<directory>${basedir}/src/main/resources</directory>
-				<!-- Don't want filtering to resolve vars in logback.xml, e.g. ${user.home},
-				these will be resolved by logback at runtime based on environment vars/ cmd line params -->
+				<!-- Don't want filtering to resolve vars in logback.xml, e.g. ${user.home}, 
+					these will be resolved by logback at runtime based on environment vars/ cmd 
+					line params -->
 				<filtering>false</filtering>
 				<includes>
 					<include>**/logback.xml</include>
