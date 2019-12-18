@@ -10,11 +10,11 @@
 	<version>1.0.0-SNAPSHOT</version>
 
 	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-		<spring-boot-dependencies.version>1.5.16.RELEASE</spring-boot-dependencies.version>
-		<main.class>c8y.example.helloworld.HelloWorldMain</main.class>
-		<c8y.version>1004.6.12</c8y.version>		
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<spring-boot-dependencies.version>1.5.17.RELEASE</spring-boot-dependencies.version>
+		<main.class>c8y.example.cookbook.CookBookApp</main.class>
+		<c8y.version>1004.6.12</c8y.version>
 	</properties>
 
 	<dependencies>
@@ -42,6 +42,31 @@
 	</dependencies>
 
 	<build>
+
+		<resources>
+			<!-- specify which resources should be filtered by Maven to replace ${varName} 
+				vars, see https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html -->
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/application*.properties</include>
+					<include>**/banner.txt</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<!-- Don't want filtering to resolve vars in logback.xml, e.g. ${user.home}, 
+					these will be resolved by logback at runtime based on environment vars/ cmd 
+					line params -->
+				<filtering>false</filtering>
+				<includes>
+					<include>**/logback.xml</include>
+				</includes>
+			</resource>
+		</resources>
+
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
