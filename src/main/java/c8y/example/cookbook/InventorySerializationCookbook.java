@@ -13,23 +13,14 @@ import org.springframework.stereotype.Component;
 import com.cumulocity.microservice.context.credentials.MicroserviceCredentials;
 import com.cumulocity.microservice.subscription.model.MicroserviceSubscriptionsInitializedEvent;
 import com.cumulocity.microservice.subscription.service.MicroserviceSubscriptionsService;
-import com.cumulocity.model.util.ExtensibilityConverter;
 import com.cumulocity.rest.representation.inventory.ManagedObjectRepresentation;
 import com.cumulocity.sdk.client.inventory.InventoryApi;
-import com.cumulocity.sdk.client.inventory.InventoryFilter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
-import c8y.example.cookbook.business.CustomDevice;
 import c8y.example.cookbook.business.HumiditySensor;
 import c8y.example.cookbook.business.Sensor;
 import c8y.example.cookbook.business.SensorArray;
-import c8y.example.cookbook.business.SensorAssembly;
 import c8y.example.cookbook.business.TemperatureSensor;
-import c8y.example.cookbook.util.ExtendedInventoryFilter;
 import c8y.example.cookbook.util.ManagedObjectPOJOMapper;
 
 @Component
@@ -113,8 +104,7 @@ public class InventorySerializationCookbook {
 					log.info(String.format("Fetched sensor array: %s ", 
 							new ObjectMapper().writeValueAsString(fetchedSensorArray)));
 					
-					// error, because type information is missing and fetchedSensorArray was not correctly deserialized
-					Sensor sensor = fetchedSensorArray.getSensors().get(0); // throws java.lang.ClassCastException: java.util.HashMap cannot be cast to c8y.example.cookbook.business.Sensor
+					Sensor sensor = fetchedSensorArray.getSensors().get(0); 
 					
 					log.info(String.format("Fetched sensor: %s ", 
 							new ObjectMapper().writeValueAsString(sensor)));
