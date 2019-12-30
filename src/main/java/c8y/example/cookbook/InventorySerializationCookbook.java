@@ -104,7 +104,7 @@ public class InventorySerializationCookbook {
 					log.info(String.format("Fetched sensor array: %s ", 
 							new ObjectMapper().writeValueAsString(fetchedSensorArray)));
 					
-					Sensor sensor = fetchedSensorArray.getSensors().get(0); 
+					Sensor sensor = fetchedSensorArray.getSensors().get(0);  // TemperatureSensor
 					
 					log.info(String.format("Fetched sensor: %s ", 
 							new ObjectMapper().writeValueAsString(sensor)));

@@ -14,6 +14,8 @@
     "ROLE_EVENT_READ"
   ],
   "roles":[
+  	"ROLE_COOKBOOK_READ",
+  	"ROLE_COOKBOOK_ADMIN"
   ],
   "livenessProbe":{
     "httpGet":{

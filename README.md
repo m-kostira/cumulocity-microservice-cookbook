@@ -191,7 +191,7 @@ for (ManagedObjectRepresentation mor : mos) {
 ## Inventory advanced serialization 
 What if you want to store more complex objects in the inventory, for example an SensorArray object which contains a collection Sensor objects of different subtypes? This is not possible out of the box. In particular, the default serialization fails when a class has a property that is polymorphic, e.g. the property type is a superclass/interface and the object is a subclass/implementor. 
 
-The workaround for these cases is to use custom serialization. In our case, this is a solution based on the Jackson JSON library, which encodes the concrete object types as part of the inventory object. The class `c8y.example.cookbook.util.ManagedObjectPOJOMapper` (included with the cookbook code) provides utility methods for writing and reading plain old Java objects (POJOs) as managed objects in the inventory. Again, it's possible to encode write multiple Java objects to the same managed object, provided that the Jva objects are of different types.
+The workaround for these cases is to use custom serialization. In our case, this is a solution based on the Jackson JSON library, which encodes the concrete object class name as part of the inventory object. The class `c8y.example.cookbook.util.ManagedObjectPOJOMapper` (included with the cookbook code) provides utility methods for writing and reading plain old Java objects (POJOs) as managed objects in the inventory. Again, it's possible to write multiple Java objects to the same managed object, provided that the Java objects are of different types.
 
 ```
 List<Sensor> sensors = Arrays.<Sensor>asList(new TemperatureSensor("foo"), new HumiditySensor("bar"));
@@ -220,4 +220,6 @@ log.info(String.format("Fetched sensor: %s ",
 Note that deserializing JSON that comes from an untrusted source might not be a good idea from a security standpoint. Therefore the `ManagedObjectPOJOMapper.DEFAULT` can be used in such cases. It relies on the presence of annotations in the polymorphic classes that will be deserialized. See the class documentation for more info.
 
 Note: The Java microservice SDK default serialization uses the Svenson library to serialize Java objects to inventory JSON documents. Workarounds for cases like the above exist, but are cumbersome or incomplete (see https://code.google.com/archive/p/svenson/wikis/ParsingJSON.wiki)
+
+
 
