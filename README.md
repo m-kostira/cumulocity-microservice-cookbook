@@ -2,7 +2,7 @@
 
 This cookbook shows some Java snippets for some common scenarios that arise when developing Cumulocity microservices. The snippets are mostly based on the default Java SDK for Cumulocity. 
 
-The cookbook comes with a complete Spring Boot microservice that includes all the snippets.
+The cookbook comes with a complete, working Spring Boot microservice that includes all the snippets and more, available at https://github.com/m-kostira/cumulocity-microservice-cookbook.
 
 Prerequisites:
 - C8y microservices overview (https://cumulocity.com/guides/microservice-sdk/concept/)
