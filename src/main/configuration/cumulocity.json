@@ -2,12 +2,20 @@
   "apiVersion":"1",
   "version":"@project.version@",
   "provider": {
-    "name":"Cumulocity GmbH"
+    "name":"Software AG"
   },
   "isolation":"MULTI_TENANT",
   "requiredRoles": [
+  	"ROLE_INVENTORY_READ",
+    "ROLE_INVENTORY_ADMIN",
+    "ROLE_MEASUREMENT_READ",
+    "ROLE_MEASUREMENT_ADMIN",
+    "ROLE_EVENT_ADMIN",
+    "ROLE_EVENT_READ"
   ],
   "roles":[
+  	"ROLE_COOKBOOK_READ",
+  	"ROLE_COOKBOOK_ADMIN"
   ],
   "livenessProbe":{
     "httpGet":{
