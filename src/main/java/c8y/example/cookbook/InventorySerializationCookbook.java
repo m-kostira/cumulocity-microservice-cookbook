@@ -41,7 +41,7 @@ public class InventorySerializationCookbook {
 	}
 
 	/**
-	 * This will fail, as we have 
+	 * This will fail because type information is missing 
 	 */
 	private void serializeComplexObjectDefault() {
 		try {			

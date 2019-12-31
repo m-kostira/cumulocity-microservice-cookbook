@@ -1,9 +1,12 @@
 package c8y.example.cookbook;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +55,22 @@ public class RESTCookbook {
 	public String health() {
 		return "Service is up and running!";
 	}
+	
+	@GetMapping("/env")
+	public String getEnvironmentVariables() {
+		StringBuilder responseBuilder = new StringBuilder("Environment variables:<br>");
+		
+		Map<String, String> env = System.getenv();
+		
+	    for (String envName : env.keySet()) {
+	    	responseBuilder.append(String.format("%s=%s<br>",
+	                          envName,
+	                          env.get(envName)));	        
+	    }
+		
+		return responseBuilder.toString();
+	}
+	
 	
 	@GetMapping(path = "/inventory", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getManagedObjects(@RequestParam(value = "pageSize") Optional<Integer> pageSize,
