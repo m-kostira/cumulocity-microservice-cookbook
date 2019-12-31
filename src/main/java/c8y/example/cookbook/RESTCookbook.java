@@ -117,7 +117,7 @@ public class RESTCookbook {
 		
 		if(!userHasCookbookAdminRole()) {			 
 			return  ResponseEntity.status(HttpStatus.FORBIDDEN)
-					.body("Insufficient Permissions: user does not have required permission to access this API");
+					.body("Insufficient Permissions: user does not have required permission to access this API: ROLE_COOKBOOK_ADMIN");
 		}	
 		
 		ManagedObjectRepresentation managedObject = subscriptionsService.callForTenant(tenantId, ()->{

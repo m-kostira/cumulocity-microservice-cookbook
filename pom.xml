@@ -5,8 +5,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>c8y.example</groupId>
-	<artifactId>hello-world-microservice</artifactId>
-	<name>Cumulocity :: Examples :: Hello World Microservice</name>
+	<artifactId>c8y-microservice-cookbook</artifactId>
+	<name>Cumulocity Microservice Cookbook</name>
 	<version>1.0.0-SNAPSHOT</version>
 
 	<properties>
@@ -95,8 +95,8 @@
 							<goal>package</goal>
 						</goals>
 						<configuration>
-							<name>hello-world</name>
-							<image>hello-world</image>
+							<name>microservice-cookbook</name>
+							<image>microservice-cookbook</image>
 							<encoding>UTF-8</encoding>
 							<rpmSkip>true</rpmSkip>
 						</configuration>
