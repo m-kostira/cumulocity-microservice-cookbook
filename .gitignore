@@ -8,6 +8,9 @@ target/
 logs/
 bin/
 
+src/main/resources/application-mkostira.properties
+src/main/resources/application-preprod.properties
+
 # Compiled class file
 *.class
 
