@@ -66,10 +66,12 @@ public class InventorySerializationCookbook {
 							new ObjectMapper().writeValueAsString(fetchedSensorArray)));
 					
 					// error, because type information is missing and fetchedSensorArray was not correctly deserialized
-					Sensor sensor = fetchedSensorArray.getSensors().get(0); // throws java.lang.ClassCastException: java.util.HashMap cannot be cast to c8y.example.cookbook.business.Sensor
+					try {
+						Sensor sensor = fetchedSensorArray.getSensors().get(0); // throws java.lang.ClassCastException: java.util.HashMap cannot be cast to c8y.example.cookbook.business.Sensor
+					} catch (ClassCastException e) {
+						log.info("As expected - ClassCastException: " + e.getMessage());
+					}
 				
-					log.info(String.format("Fetched sensor: %s ", 
-							new ObjectMapper().writeValueAsString(sensor)));
 				
 				} catch (Exception e) {
 					log.error("Error ", e);
