@@ -442,3 +442,239 @@ public class HTTPClientCookbook {
 ```
 
 
+## Configuring your microservice
+
+**Spring Boot application.properties**
+
+Almost every application needs some configuration options to be provided at startup. For Spring Boot, these options are usually provided in `src/main/resources/application.properties` as key-value pairs:
+
+```
+application.name=microservice-cookbook
+server.port=80
+
+C8Y.bootstrap.initialDelay=3000
+```
+
+Here, 'server.port' tells Spring Boot to start the microservice on the default HTTP port 80.
+`C8Y.bootstrap.initialDelay` is a property which tells the Cumulocity SDK how long to wait (in milliseconds) before it retrieves the microservice credentials using the microservice bootstrap user; the longer you set this, the longer it will be before you get the `MicroserviceSubscriptionAdded` events. As discussed in the official `Cumulocity Java SDK Guide`, there are some parameters which you need to specify in order to run and test your microservice locally:
+
+```
+C8Y.baseURL=<tenant URL, e.g. https://mytenant.cumulocity.com>
+C8Y.bootstrap.tenant=<tenant id, e.g. t1438548>
+C8Y.bootstrap.user=servicebootstrap_microservice-cookbook
+C8Y.bootstrap.password=<password for the service bootstrap user>
+```
+
+These are used by the Java SDK to connect to the platform.
+
+** Reading property values **
+You can, in fact, read these properties in your application code. The most straight-forward way to do this is to have your class annotated as a Spring `Component` and injecting the property value using the annotation `@Value`:
+
+```
+@Component
+public class ConfigurationCookbook {
+	private static final Logger log = LoggerFactory.getLogger(ConfigurationCookbook.class);
+		
+	@Value("${C8Y.baseURL}")
+	private String baseURL;
+	
+	@PostConstruct
+	public void init() {
+		log.info("Base url is " + baseURL);
+	}
+}
+```
+
+Here, the @PostConstruct annotation tells Spring to execute the method after all the dependencies of the component have been injected. Note that if you were to try to read `baseURL` in the class constructor, it would be null - because Spring has not injected it yet. You could also inject values in your class contructor directly using this syntax:
+
+```
+@Component
+public class ConfigurationCookbook {
+	private static final Logger log = LoggerFactory.getLogger(ConfigurationCookbook.class);
+		
+	private String baseURL;
+	
+	 @Inject
+	 public ConfigurationCookbook(@Value("${C8Y.baseURL}") String baseURL) {
+		 this.baseURL = baseURL;
+		 log.info("Base url is " + baseURL);
+	 }	
+}
+
+```
+
+Using constructor injection is cleaner and is recommended for required dependencies, but you have to be careful not to have circular dependencies between your components.
+
+You can of course supply and read your custom properties. 
+
+Reading with a default value, if one is not supplied:
+
+```
+@Value("${myapp.myCustomProp:20}")
+private int myCustomProp;	
+```
+
+**Spring profiles**
+
+Spring Boot has a **profiles** feature, which allows you to easily run the application with a different set of properties based on the active profile. If you don't explicitly specify a profile, the `default` profile will be loaded. The `default` profile loads the default properties, stored in `src/main/resources/application.properties`. You can activate additional profiles, which will load additional properites files, where you can override the default property values and supply additional properties.
+
+Let's say you want to configure your application to run on port 8080 when running locally, because port 80 is used by another process. To do so, you need to override the `server.port` property. We will define a `local` profile and activate it by passing the command line argument `--spring.profiles.active=local` (In Eclipse, this is can be entered in the Run/Debug configuration dialog -> `Arguments` tab-> `Program arguments`). When the profile is active, it will automatically load properties from the file `application-<profile name>.properties`. This means that in our case, we will need to create an `application-local.properties` file, containing:
+
+```
+server.port=8080
+```
+
+You can activate multiple profiles: `--spring.profiles.active=local,dev`. Note that the order matters - properties in the `local` profile will override properties in the default profile, and properties in the `dev` profile will override `local` profile properties.
+
+You may have different environments: dev, test, prod, each associated with a different tenant. It is possible to have a separate profile and properties for each environment, e.g.
+
+application-dev.properties:
+```
+C8Y.baseURL=https://dev.cumulocity.com
+C8Y.bootstrap.tenant=devTenantId
+C8Y.bootstrap.user=servicebootstrap_microservice-cookbook
+C8Y.bootstrap.password=<dev bootstrap password>
+```
+
+application-test.properties:
+```
+C8Y.baseURL=https://test.cumulocity.com
+C8Y.bootstrap.tenant=testTenantId
+C8Y.bootstrap.user=servicebootstrap_microservice-cookbook
+C8Y.bootstrap.password=<test bootstrap password>
+```
+
+Then you could have activate a different profile when you want to test your service against a particular environment. 
+
+There is a problem with this approach, howerever - you are storing credentials in a document which is under source control, which is a bad practice from a security standpoint, and it's also fragile because bootstrap credentials might change. A better approach is presented in the next section.
+
+**Externalising properties**
+
+Let's say you want to supply credentials to your service, in order to test locally. You can do so in the properties file, but to avoid having the credentials under source control, you can also supply properties as command line arguments or even as environment variables. Spring Boot loads the application's properties not only from the `application.properties` file, but also from a number of other locations, in a very specific precedence order:
+https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config
+
+For our purposes, the most common ways to supply properties are the following (highest precedence first):
+
+1. Command line arguments
+2. OS environment variables
+3. In application.properties 
+
+Thus, we can supply credentials as command line arguments:
+
+```
+--C8Y.baseURL=https://dev.cumulocity.com --C8Y.bootstrap.tenant=devTenantId --C8Y.bootstrap.user=servicebootstrap_microservice-cookbook --C8Y.bootstrap.password=iH1JZBJN0UK1rn5d50Dd1ntfl6E3a3Bi
+```
+
+**Environment variables** are also a useful way to supply properties. Note - most operating systems disallow period-separated key names and it's standard practice to use underscores and capital case, as in `C8Y_BASEURL`. Spring is pretty smart about that, so if you try to lookup a property `c8y.baseURL`, the framework will resolve it to the environment variable `C8Y_BASEURL`. 
+
+In fact, the Cumulocity platform injects a number of envrionment variables into the microservice runtime (the Docker container inside which the microservice runs). When you deploy a microservice to the platform, these environment variables are injected
+
+- `C8Y_BOOTSTRAP_TENANT`, `C8Y_BOOTSTRAP_USER`, `C8Y_BOOTSTRAP_PASSWORD` (for multitenant microsertvices)
+
+- `C8Y_TENANT`, `C8Y_USER`, `C8Y_PASSWORD` (for per-tenant microservices)
+
+Thus, you don't really need these properties (`C8Y.baseURL`, etc.) in your `application.properties` file, because they will be supplied by the platform; you only need them for running your microservice locally. In that way, your microservice can be deployed to different tenants without the need to package it with different bootstrap properties every time.
+
+**Properties in tenant options**
+
+Often, you want to provide your microservice to a client, who may need to change a configuration property. With properties in `application.properties`, this means you have to update the file and repackage the microservice, which is impractical. Environment variables are not an option, since you have no control over them once the microservice is deployed. Even if you did, there would be no way to change a property at runtime. For these use cases, it's recommended to store your properties in the Cumulocity platform itself and the recommended place to do so is the **tenant options**. 
+
+The tenant options are category-key-value tuples, that can be created, read, updated and deleted via the Cumulocity REST API (see the docs for details). As such, they are accessible to microservices. 
+
+The convention is to store settings for your microservice in a tenant options, whose category is the same as the microservice **context path**. See the docs for more details, but basically, unless you specify otherwise, the context path is equal to the application name. So if the application is under `https://my-tenant.cumulocity.com/service/my-app`, then you would store settings by executing
+
+`POST https://my-tenant.cumulocity.com/tenant/options`
+
+with request body:
+
+```
+{
+    "category": "my-app",
+    "key": "<setting name>",
+    "value": "<setting value>"
+}
+```
+
+To read those settings from your microservice, execute
+
+`GET /application/currentApplication/settings`
+
+Authenticate as the service bootstrap user, to get the settings for the owner tenant (in the case of a multitenant microservice). Authenticate as a service user for a particular tenant, to get the settings for that tenant.  
+
+The added benefit of storing settings in this way is that you can store sensitive information and make the platform encrypt it. This way, regular users will see the setting values encrypted in the tenant options, but it will still be available decrypted to the microservice user. To make a setting encrypted, prefix the key with `credentials`:
+
+`POST https://my-tenant.cumulocity.com/tenant/options`
+
+```
+{
+    "category": "my-app",
+    "key": "credetials.apiPassword",
+    "value": "<setting value>"
+}
+```
+
+The Java Cumulocity SDK provides some convenience classes that do that for you and let you easily obtain the microservice settings. Keep in mind the SDK caches the settings for 10  minutes, so you won't see updates immediately.
+
+```
+@RestController
+@RequestMapping("/configuration")
+public class ConfigurationRestController {
+
+	@Autowired
+	private Environment environment;
+
+	@Autowired
+	private MicroserviceSettingsService settingsService;
+	
+	/**
+	 * @return All available settings
+	 */
+	@GetMapping(path = "/environment", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getConfigurationProperties(
+			@RequestParam(value = "propertyName", required = false) String propertyName) throws JsonProcessingException {
+		try {
+			
+			if (propertyName != null) {
+				String property = environment.getProperty(propertyName);
+				return ResponseEntity.status(HttpStatus.OK).body(property);
+			}
+			
+			MutablePropertySources propSrcs = ((AbstractEnvironment) environment).getPropertySources();
+			Map<String, String> props = StreamSupport.stream(propSrcs.spliterator(), false)
+			        .filter(ps -> ps instanceof EnumerablePropertySource)
+			        .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
+			        .flatMap(Arrays::<String>stream)		        
+			        .distinct()
+			        .collect(Collectors.toMap(Function.identity(), environment::getProperty));
+			
+			return ResponseEntity.status(HttpStatus.OK).body(props);
+		
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(String.format("Error %s", e.getMessage()));
+		}
+		
+	}
+	
+	
+	/**
+	 * @return Settings in tenant options 
+	 */
+	@GetMapping(path = "/tenantOptions", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getTenantOptionsConfigurationProperty(
+			@RequestParam(value = "propertyName", required = false) String propertyName) throws JsonProcessingException {
+	
+		if (propertyName != null) {
+			String property = settingsService.get(propertyName);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(property);
+		}
+		
+		Map<String, String> props = settingsService.getAll();
+		
+		return ResponseEntity.status(HttpStatus.OK).body(props);		
+	}
+	
+}
+```
+
+Note that for multitenant microservices, `MicroserviceSettingsService.get()` and `MicroserviceSettingsService.getAll()` can return different values depending on the current tenant scope, i.e. if they are wrapped in `MicroserviceSubscriptionsService.runForTenant()`. For example, `MicroserviceSettingsService.getAll()` will return the settings for the current tenant, or for the owner tenant (bootstrap tenant) if there is no current tenant.
