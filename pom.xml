@@ -12,7 +12,7 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<spring-boot-dependencies.version>1.5.17.RELEASE</spring-boot-dependencies.version>
+		<spring-boot-dependencies.version>2.5.12</spring-boot-dependencies.version>
 		<main.class>c8y.example.cookbook.CookBookApp</main.class>
 		<c8y.version>1004.6.12</c8y.version>
 	</properties>
